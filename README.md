@@ -1,6 +1,23 @@
 # Stream Architecture Analysis
 A research project analyzing the technical architecture of CrichD's streaming infrastructure.
 
+## Disclaimer
+This project is purely for academic research and educational purposes. As a software engineer passionate about reverse engineering web applications, I created this project to study and document interesting streaming architecture patterns from a technical perspective. The analysis explores how modern web streaming platforms implement features like dynamic content delivery, P2P networking, and token-based authentication.
+
+The code and documentation provided here are meant for learning about:
+- Video streaming technologies
+- Network protocols
+- Web architecture patterns
+- JavaScript deobfuscation techniques
+- Modern player implementations
+
+**Important Notes:**
+- This is an experimental project intended for academic study only
+- The authors do not condone or encourage any unauthorized access or copyright infringement
+- This research should only be used to understand streaming technologies in legal and authorized contexts
+- No actual stream content is hosted or distributed by this project
+- The focus is purely on understanding the technical implementation details of web streaming architectures
+
 ## Technical Components Analyzed
 1. Stream Source Discovery
    - Initial channel page (crichdplayer.com)
