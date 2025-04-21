@@ -1,0 +1,25 @@
+{
+    "urls": {
+        "base": "https://apex2nova.com/premium.php",
+        "format": "{base}?player={player}&live={channel_id}",
+        "player": "desktop"
+    },
+    "channels": {
+        "starhindi": {
+            "name": "Star Sports Hindi",
+            "source": "https://crichdplayer.com/star-sports-hindi-live-stream-play-01"
+        },
+        "skyscric": {
+            "name": "Sky Sports Cricket",
+            "source": "https://crichdplayer.com/sky-sports-cricket-live-stream-me-1"
+        },
+        "willowusa": {
+            "name": "Willow Cricket",
+            "source": "https://crichdplayer.com/willow-cricket-live-stream-play-01"
+        },
+        "star1in": {
+            "name": "Star Sports 1",
+            "source": "https://crichdplayer.com/star-sports-1-live-stream-play-01"
+        }
+    }
+}

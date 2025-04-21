@@ -1,0 +1,18 @@
+services:
+  stream-analysis:
+    build: .
+    container_name: stream-analysis
+    restart: always
+    ports:
+      - "${PORT:-9000}:${PORT:-9000}"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - PORT=${PORT:-9000}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - stream_network
+
+networks:
+  stream_network:
+    driver: bridge
