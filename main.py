@@ -11,6 +11,7 @@ from typing import List, Dict
 
 load_dotenv()
 PORT = int(os.getenv('PORT', 9000))
+PROXY_PORT = int(os.getenv('PROXY_PORT', 8080))
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not API_KEY:
@@ -145,39 +146,29 @@ async def get_stream(channel: str):
         logger.info(f"Fetching stream data from: {url}")
         response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
-        html_content = response.text
         
-        logger.info("Processing stream information")
-        stream_info_json = fetch_stream_info(API_KEY, html_content)
-        extracted_url = stream_info_json.get("url")
-        if extracted_url: # Ensure URL exists before processing
-             extracted_url = re.sub(r'(https?://)/+', r'\1', extracted_url)
-             stream_info_json["url"] = extracted_url
-        else:
-            logger.warning(f"No 'url' found in stream info for channel: {channel}")
-            raise HTTPException(status_code=500, detail="Analysis service failed to return a stream URL")
+        stream_info_json = fetch_stream_info(API_KEY, response.text)
+        if not (extracted_url := stream_info_json.get("url")):
+            raise ValueError("Analysis service failed to return a stream URL")
+
+        # Clean and normalize the URL
+        cleaned_url = re.sub(r'(?<!:)//+', '/', extracted_url)
+        if not cleaned_url.startswith(('http://', 'https://')):
+            cleaned_url = f"https://{cleaned_url}"
+        
+        stream_info_json["url"] = cleaned_url
+        proxy_path = cleaned_url.replace('https://', '').replace('http://', '')
+        stream_info_json["proxied_url"] = f"http://localhost:{PROXY_PORT}/proxy/{proxy_path}"
         
         logger.info(f"Successfully processed stream for channel: {channel}")
         return stream_info_json
         
-    except requests.Timeout as e:
-        # Specific handling for timeouts (could be initial fetch or OpenRouter)
-        logger.error(f"Timeout during request for {channel}: {str(e)}")
-        raise HTTPException(status_code=504, detail="Gateway timeout") # 504 might be suitable for timeout
-    except requests.RequestException as e:
-        # Handles connection errors, HTTP errors, etc. from both requests.get and fetch_stream_info
-        logger.error(f"Request error processing {channel}: {str(e)}")
-        # Check if it's an HTTP error from OpenRouter to return 502, otherwise maybe 500 or 502
-        status_code = 502 if isinstance(e, requests.HTTPError) else 500
-        detail = f"Error communicating with upstream service: {str(e)}" if status_code == 502 else f"Request failed: {str(e)}"
-        raise HTTPException(status_code=status_code, detail=detail)
-    except (json.JSONDecodeError, KeyError, IndexError) as e:
-        # Errors during JSON parsing or accessing expected keys/indices in OpenRouter response
-        logger.error(f"Error parsing stream info for {channel}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to parse stream information")
-    except Exception as e: # Catch-all
-        logger.exception(f"Unexpected error processing {channel}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    except requests.Timeout:
+        logger.error(f"Timeout while fetching stream for channel: {channel}")
+        raise HTTPException(status_code=504, detail="Gateway timeout")
+    except (requests.RequestException, ValueError, json.JSONDecodeError) as e:
+        logger.error(f"Error processing stream for channel {channel}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 def main():
     logger.info(f"Starting Stream Architecture Analysis API on port {PORT}")

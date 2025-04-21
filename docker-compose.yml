@@ -4,12 +4,48 @@ services:
     container_name: stream-analysis
     restart: always
     ports:
-      - "${PORT:-9000}:${PORT:-9000}"
+      - "${API_PORT:-9000}:${API_PORT:-9000}"
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - PORT=${PORT:-9000}
+      - PORT=${API_PORT:-9000}
+      - PROXY_PORT=${PROXY_PORT:-8080}
     volumes:
       - ./logs:/app/logs
+    networks:
+      - stream_network
+
+  warp:
+    image: caomingjun/warp
+    container_name: warp
+    restart: always
+    device_cgroup_rules:
+      - 'c 10:200 rwm'
+    environment:
+      - WARP_SLEEP=2
+      - LOG_LEVEL=INFO
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./data/warp:/var/lib/cloudflare-warp
+    networks:
+      - stream_network
+
+  proxy:
+    image: nginx:alpine
+    container_name: stream-proxy
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "${PROXY_PORT:-8080}:8080"
+    environment:
+      - PROXY_PORT=${PROXY_PORT:-8080}
+    depends_on:
+      warp:
+        condition: service_healthy
     networks:
       - stream_network
 

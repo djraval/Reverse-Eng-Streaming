@@ -170,3 +170,14 @@ i.e for the url above we can get the contents and then start with getting the in
     </script>
 ```
 We need to resolve this JS snippet to get the m3u8 url
+
+Another interseting find.
+
+On each run we got different server addresses, i.e 
+pol7.dunyapurkaraja.com
+pol5.dunyapurkaraja.com
+pol6.dunyapurkaraja.com
+
+Its possibly some kind of load balancer as inrerchanging them still gives us a valid response.
+
+We might be able to leverage that to simultaulsy connect to all 3 servers and get the stream faster.
