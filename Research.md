@@ -172,6 +172,7 @@ i.e for the url above we can get the contents and then start with getting the in
 ```
 We need to resolve this JS snippet to get the m3u8 url
 
+--------------------------------------------------------------
 Another interseting find.
 
 On each run we got different server addresses, i.e 
@@ -182,3 +183,49 @@ pol6.dunyapurkaraja.com
 Its possibly some kind of load balancer as inrerchanging them still gives us a valid response.
 
 We might be able to leverage that to simultaulsy connect to all 3 servers and get the stream faster.
+
+----------------------------------
+
+Based on my observations, the way the m3u8 url works is that we need a signed url (uses md5 and expires param) else we get a 403 error.
+If it works then that url is valid until the expires param which is roughly ~2 hours from the time of request.
+
+Then inside the m3u8 file we get the ts files, but they are not signed so we access them directly.
+
+a rough flow would be:
+1. Get the signed m3u8 url
+    i.e https://pol7.dunyapurkaraja.com:999/hls/star1in.m3u8?md5=x4aLgb69RDQQc5tFjqyqybIA&expires=1745259485
+2. We use our reverse proxy
+    i.e http://localhost:8081/proxy/pol7.dunyapurkaraja.com:999/hls/star1in.m3u8?md5=x4aLgb69RDQQc5tFjqyqybIA&expires=1745259485
+3. Raw Response would look like this:
+    ```
+    #EXTM3U
+    #EXT-X-VERSION:3
+    #EXT-X-MEDIA-SEQUENCE:18419
+    #EXT-X-TARGETDURATION:10
+    #EXTINF:8.680,
+    star1in-18419.ts
+    #EXTINF:10.000,
+    star1in-18420.ts
+    #EXTINF:10.000,
+    star1in-18421.ts
+    #EXTINF:10.000,
+    star1in-18422.ts
+    #EXTINF:8.640,
+    star1in-18423.ts
+    #EXTINF:10.000,
+    star1in-18424.ts
+    ```
+    When testing it with vlc, it could be seen that sequential requests are made to the server for the ts files
+    i.e http://localhost:8081/proxy/pol7.dunyapurkaraja.com:999/hls/star1in-18419.ts
+
+Seeing this url pattern makes me curious if I might be able to get other streams since HLS is one type of delivery protocol.
+--------
+
+Initial experiments to tap into the P2P cdn network failed (good motivation to learn NodeJS ?) as the SwarmCloud SDK being used is geared towards being using with web-browsers.
+https://docs.swarmcloud.net/
+
+But the docs suggest that it could be used with Electron but too heavy for just one functionlity. 
+Will investigate this avenue later if the load balancer idea doesn't work out.
+---------
+
+Either Host or Cloudflare is blocking access after couple of tries. Will need to investigate further
