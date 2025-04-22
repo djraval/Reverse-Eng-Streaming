@@ -1,20 +1,20 @@
 services:
-  stream-analysis:
+  stream-api:
     build: .
-    container_name: stream-analysis
+    container_name: stream-api
     restart: always
     ports:
-      - "${API_PORT:-9000}:${API_PORT:-9000}"
+      - "${HOST_API_PORT:-9000}:9000"
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - PORT=${API_PORT:-9000}
-      - PROXY_PORT=${PROXY_PORT:-8080}
+      - PROXY_URL=${PROXY_URL:-socks5://warp:1080}
+      - LOG_LEVEL=${API_LOG_LEVEL:-DEBUG}
     volumes:
       - ./logs:/app/logs
     networks:
       - stream_network
 
-  warp:
+  warp: # SOCKS5/HTTP proxy at warp:1080
     image: caomingjun/warp
     container_name: warp
     restart: always
@@ -22,32 +22,21 @@ services:
       - 'c 10:200 rwm'
     environment:
       - WARP_SLEEP=2
-      - LOG_LEVEL=INFO
+    ports:
+      - "1080:1080"
     cap_add:
       - NET_ADMIN
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
       - net.ipv4.conf.all.src_valid_mark=1
-    volumes:
-      - ./data/warp:/var/lib/cloudflare-warp
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --socks5-hostname 127.0.0.1:1080 https://www.cloudflare.com/cdn-cgi/trace | grep -q 'warp=on' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - stream_network
 
-  proxy:
-    image: nginx:alpine
-    container_name: stream-proxy
-    restart: always
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "${PROXY_PORT:-8080}:8080"
-    environment:
-      - PROXY_PORT=${PROXY_PORT:-8080}
-    depends_on:
-      warp:
-        condition: service_healthy
-    networks:
-      - stream_network
 
 networks:
   stream_network:

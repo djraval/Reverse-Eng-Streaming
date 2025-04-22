@@ -229,3 +229,42 @@ Will investigate this avenue later if the load balancer idea doesn't work out.
 ---------
 
 Either Host or Cloudflare is blocking access after couple of tries. Will need to investigate further
+
+The ip that requests the php page is tied to the signature, so we need to use the same for subsequent requests.
+
+-------------------
+Would need to further refine the idea of using the load balancer.
+
+Right now the play/ endpoint could get either of the 3 possible hosts and the m3u8 content is differnt for each of them.
+
+When I request
+http://localhost:9000/play/starhindi.m3u8
+
+for example the I would get 
+```
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:31166
+#EXT-X-TARGETDURATION:10
+#EXTINF:10.000,
+starhindi-31166.ts
+#EXTINF:6.200,
+starhindi-31167.ts
+```
+
+but in any of the subsequent requests I sometimes get
+```
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:4144
+#EXT-X-TARGETDURATION:14
+#EXTINF:4.360,
+starhindi-4144.ts
+#EXTINF:10.000,
+starhindi-4145.ts
+#EXTINF:10.000,
+starhindi-4146.ts
+```
+Since internally it could be connecting to pol[5/6/7].dunyapurkaraja.com either of the 3
+
+Wehn playing from 3 of them simultaneously we get a simiilar stream albiet a delay between them. but the segment naming is tied individually to each of the servers.

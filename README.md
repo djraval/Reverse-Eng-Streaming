@@ -38,13 +38,14 @@ The code and documentation provided here are meant for learning about:
 The included API provides endpoints for technical analysis:
 
 - `/channels` - Lists available channel identifiers
-- `/stream/{channel}` - Analyzes stream construction for specified channel
+- `/stream-info/{channel_id}` - Fetches and returns raw stream information (M3U8 URL, token, announce)
 
 ## Research Notes
 See [Research.md](Research.md) for detailed technical analysis of:
 - URL construction patterns
 - JavaScript deobfuscation examples
 - P2P configuration parameters
+- P2P network architecture
 
 ## Academic Purpose
 This project documents streaming architecture patterns for research and educational purposes.
@@ -54,11 +55,12 @@ This project documents streaming architecture patterns for research and educatio
 ### Prerequisites
 - Docker
 - Docker Compose
-- OPENROUTER_API_KEY (set in .env file)
+- OPENROUTER_API_KEY (optional, set in .env file for LLM fallback parsing)
 
 ### Running with Docker
-1. Create a `.env` file with your OPENROUTER_API_KEY:
+1. Create a `.env` file (optional):
    ```
+   # Optional: For LLM fallback parsing when regular parsing fails
    OPENROUTER_API_KEY=your_api_key_here
    ```
 
@@ -70,14 +72,14 @@ This project documents streaming architecture patterns for research and educatio
 3. Access the API:
    - API Documentation: http://localhost:9000/docs
    - Channels List: http://localhost:9000/channels
-   - Stream Info: http://localhost:9000/stream/{channel}
+   - Stream Info: http://localhost:9000/stream-info/{channel_id}
 
 4. View logs:
-   - Real-time logs: `docker compose logs -f stream-analysis`
+   - Real-time logs: `docker compose logs -f stream-api`
    - Log files are stored in the `./logs` directory
 
 ### Development
 To run in development mode with live reload:
 ```bash
-docker compose up --build stream-analysis
+docker compose up --build stream-api
 ```
