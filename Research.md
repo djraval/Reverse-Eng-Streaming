@@ -268,3 +268,20 @@ starhindi-4146.ts
 Since internally it could be connecting to pol[5/6/7].dunyapurkaraja.com either of the 3
 
 Wehn playing from 3 of them simultaneously we get a simiilar stream albiet a delay between them. but the segment naming is tied individually to each of the servers.
+---------
+
+The signed stream url we receive from the php server also seems to be tied to the ip that requested it. So the signature is also uses the ip as a part of it.
+
+--------
+
+Servers changed from pol[5/6/7].dunyapurkaraja.com:999 to off1.gogohaalmal.com:1686
+
+Signature analysis shows MD5 includes channel_id + expires_timestamp + client_ip + secret_key. Signatures are IP-bound and change every 1-2 seconds.
+
+Implemented client-safe URLs that work directly in VLC:
+- http://localhost:9000/stream/willowusa.m3u8
+- http://localhost:9000/stream/starhindi.m3u8
+- http://localhost:9000/stream/skyscric.m3u8
+- http://localhost:9000/stream/star1in.m3u8
+
+Solution uses direct connection for signature generation and converts relative segment URLs to absolute URLs with fresh signatures. API only handles M3U8 generation, no video segment proxying.

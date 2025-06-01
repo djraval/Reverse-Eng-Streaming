@@ -175,3 +175,6 @@ cython_debug/
 
 # Docker compose peristance volumes
 data/
+
+# Application logs
+logs/

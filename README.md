@@ -34,52 +34,47 @@ The code and documentation provided here are meant for learning about:
    - Token generation
    - URL expiration implementation
 
-## API Documentation
-The included API provides endpoints for technical analysis:
+## Usage
 
-- `/channels` - Lists available channel identifiers
-- `/stream-info/{channel_id}` - Fetches and returns raw stream information (M3U8 URL, token, announce)
+```bash
+python main.py list                    # List available channels
+python main.py get <channel_id>        # Extract stream URL
+python main.py                         # Show help
+```
+
+### Sample Output
+```bash
+$ python main.py list
+Available channels:
+  - starhindi
+  - skyscric
+  - willowusa
+  - star1in
+
+$ python main.py get starhindi
+Fetching stream data for starhindi...
+Stream URL for starhindi:
+https://off1.gogohaalmal.com:1686/hls/starhindi.m3u8?md5=hLeV65QPS37_MYtux7X1Ug&expires=1748824542
+```
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+python main.py list
+```
+
+Channel configuration in `channels.json`.
 
 ## Research Notes
-See [Research.md](Research.md) for detailed technical analysis of:
-- URL construction patterns
-- JavaScript deobfuscation examples
-- P2P configuration parameters
-- P2P network architecture
+See [Research.md](Research.md) for technical analysis of URL construction patterns, JavaScript deobfuscation, and P2P network architecture.
 
-## Academic Purpose
-This project documents streaming architecture patterns for research and educational purposes.
+## Project Structure
 
-## Docker Setup
-
-### Prerequisites
-- Docker
-- Docker Compose
-- OPENROUTER_API_KEY (optional, set in .env file for LLM fallback parsing)
-
-### Running with Docker
-1. Create a `.env` file (optional):
-   ```
-   # Optional: For LLM fallback parsing when regular parsing fails
-   OPENROUTER_API_KEY=your_api_key_here
-   ```
-
-2. Build and start the containers:
-   ```bash
-   docker compose up --build
-   ```
-
-3. Access the API:
-   - API Documentation: http://localhost:9000/docs
-   - Channels List: http://localhost:9000/channels
-   - Stream Info: http://localhost:9000/stream-info/{channel_id}
-
-4. View logs:
-   - Real-time logs: `docker compose logs -f stream-api`
-   - Log files are stored in the `./logs` directory
-
-### Development
-To run in development mode with live reload:
-```bash
-docker compose up --build stream-api
+```
+├── main.py              # Main application
+├── channels.json        # Channel configuration
+├── requirements.txt     # Dependencies
+├── Research.md         # Technical analysis
+└── README.md           # Documentation
 ```
