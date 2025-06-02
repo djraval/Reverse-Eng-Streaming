@@ -36,10 +36,16 @@ The code and documentation provided here are meant for learning about:
 
 ## Usage
 
+### Stream URL Extraction
 ```bash
 python main.py list                    # List available channels
 python main.py get <channel_id>        # Extract stream URL
 python main.py                         # Show help
+```
+
+### Testing
+```bash
+python test_implementation.py          # Run tests
 ```
 
 ### Sample Output
@@ -55,6 +61,19 @@ $ python main.py get starhindi
 Fetching stream data for starhindi...
 Stream URL for starhindi:
 https://off1.gogohaalmal.com:1686/hls/starhindi.m3u8?md5=hLeV65QPS37_MYtux7X1Ug&expires=1748824542
+
+$ python test_implementation.py
+Stream URL Extraction Tests
+==============================
+✓ JavaScript parsing test passed
+
+[19:22:56] Testing channels...
+PASS starhindi: 15 segments
+PASS skyscric: 15 segments
+PASS willowusa: 15 segments
+PASS star1in: 15 segments
+
+Result: 4/4 channels working (100%)
 ```
 
 ## Setup
@@ -64,17 +83,27 @@ pip install -r requirements.txt
 python main.py list
 ```
 
-Channel configuration in `channels.json`.
+Channel configuration in `channels.json`. The channel list was manually researched and can be extrapolated to add more channels from the same host.
 
 ## Research Notes
 See [Research.md](Research.md) for technical analysis of URL construction patterns, JavaScript deobfuscation, and P2P network architecture.
 
+## Testing
+
+The project includes basic testing capabilities:
+
+- **JavaScript parsing validation** - Tests obfuscated array extraction
+- **Configuration handling** - Validates JSON structure
+- **URL construction** - Tests parameter substitution
+- **Live stream validation** - Fetches actual M3U8 content and verifies segments
+
 ## Project Structure
 
 ```
-├── main.py              # Main application
-├── channels.json        # Channel configuration
-├── requirements.txt     # Dependencies
-├── Research.md         # Technical analysis
-└── README.md           # Documentation
+├── main.py                 # Main application
+├── test_implementation.py  # Testing
+├── channels.json          # Channel configuration
+├── requirements.txt       # Dependencies
+├── Research.md           # Technical analysis
+└── README.md             # Documentation
 ```
