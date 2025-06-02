@@ -273,3 +273,7 @@ Wehn playing from 3 of them simultaneously we get a simiilar stream albiet a del
 The signed stream url we receive from the php server also seems to be tied to the ip that requested it. So the signature is also uses the ip as a part of it.
 
 Servers changed from pol[5/6/7].dunyapurkaraja.com:999 to off1.gogohaalmal.com:1686 (Can change in future)
+
+
+------------
+Probably I still need to keep cloudflare in the mix, since the request to some php pages on the main site work when i have cloudflare vpn on. (Observation when using it on my phone)
