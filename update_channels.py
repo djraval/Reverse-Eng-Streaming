@@ -4,9 +4,16 @@ import requests, warnings, re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 
 warnings.filterwarnings("ignore")
-proxies = {'http': 'socks5h://127.0.0.1:1080', 'https': 'socks5h://127.0.0.1:1080'}
+
+# Check if proxy is available
+try:
+    requests.get('http://httpbin.org/ip', proxies={'http': 'socks5h://127.0.0.1:1080'}, timeout=5)
+    proxies = {'http': 'socks5h://127.0.0.1:1080', 'https': 'socks5h://127.0.0.1:1080'}
+except:
+    proxies = None
 
 def get_links(url):
     try:
@@ -122,7 +129,13 @@ def main():
     # Sort channels by channel_id
     working_channels.sort(key=lambda x: x[0])
 
+    # Get current timestamp in UTC with timezone
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
+
     with open('channels.txt', 'w', encoding='utf-8') as f:
+        # Write CSV header with single timestamp entry
+        f.write(f'# Last updated: {timestamp}\n')
+        f.write('channel_id,name\n')
         for fid, name in working_channels:
             f.write(f'{fid},"{name}"\n')
 

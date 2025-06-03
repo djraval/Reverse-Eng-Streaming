@@ -10,8 +10,8 @@ def load_channels():
         with open('channels.txt', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
-                if line and ',' in line:
-                    # Simple CSV parsing: channel_id,"Channel Name"
+                if line and ',' in line and not line.startswith('#') and not line.startswith('channel_id,'):
+                    # CSV parsing: channel_id,"Channel Name"
                     channel_id, name = line.split(',', 1)
                     channels[channel_id] = name.strip('"')
         return channels
@@ -133,7 +133,7 @@ def get_stream_url(channel_id):
 def list_channels():
     """List all available channels"""
     channels = load_channels()
-    return list(channels.keys())
+    return channels
 
 def main():
     """Main function to handle command line arguments"""
@@ -151,8 +151,8 @@ def main():
         channels = list_channels()
         if channels:
             print("Available channels:")
-            for channel in channels:
-                print(f"  - {channel}")
+            for i, (channel_id, name) in enumerate(channels.items(), 1):
+                print(f"  {i}. {channel_id} - {name}")
         else:
             print("No channels available or config file not found")
     

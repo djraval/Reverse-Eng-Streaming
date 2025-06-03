@@ -45,24 +45,24 @@ python main.py                         # Show help
 
 ### Channel Discovery & Updates
 ```bash
-python discover.py                    # Discover channels, test them, and update channels.txt
+python update_channels.py             # Discover channels, test them, and update channels.txt
 ```
 
 ### Sample Output
 ```bash
 $ python main.py list
 Available channels:
-  - starhindi
-  - skyscric
-  - willowusa
-  - star1in
+  1. starhindi - Star Sports 1 Hindi
+  2. skyscric - Sky Sports Cricket
+  3. willowusa - Willow Cricket HD
+  4. star1in - Star Sports
 
 $ python main.py get starhindi
 Fetching stream data for starhindi...
 Stream URL for starhindi:
 https://off1.gogohaalmal.com:1686/hls/starhindi.m3u8?md5=hLeV65QPS37_MYtux7X1Ug&expires=1748824542
 
-$ python discover.py
+$ python update_channels.py
 Testing 45 discovered channels for M3U8 generation...
 [1/45] asportshd: WORKING
 [2/45] bbtsp2: WORKING
@@ -79,15 +79,17 @@ pip install -r requirements.txt
 python main.py list
 ```
 
-Channel configuration in `channels.txt` (simple CSV format):
+Channel configuration in `channels.txt` (CSV format with timestamp header):
 ```csv
+# Last updated: 2025-06-03 14:31 UTC
+channel_id,name
 starhindi,"Star Sports 1 Hindi"
 willowusa,"Willow Cricket HD"
 asportshd,"A Sports HD"
 bbtsp2,"TNT Sports 2"
 ```
 
-Use `python discover.py` to automatically discover and update all available channels. Only working channels are included in the output.
+Use `python update_channels.py` to automatically discover and update all available channels. Only working channels are included in the output.
 
 ## Research Notes
 See [Research.md](Research.md) for technical analysis of URL construction patterns, JavaScript deobfuscation, and P2P network architecture.
@@ -105,7 +107,7 @@ The discovery script includes live stream validation:
 
 ```
 ├── main.py                 # Main application - stream URL extraction
-├── discover.py            # Channel discovery with live testing
+├── update_channels.py     # Channel discovery with live testing
 ├── channels.txt           # Channel list (working channels only)
 ├── requirements.txt       # Dependencies
 ├── Research.md           # Technical analysis
