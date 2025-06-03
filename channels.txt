@@ -1,4 +1,4 @@
-# Last updated: 2025-06-03 19:16 UTC
+# Last updated: 2025-06-03 20:17 UTC
 channel_id,name
 asportshd,"A Sports HD"
 bbtsp2,"TNT Sports 2"
@@ -11,8 +11,8 @@ hubpremier4,"Hub Premier 4"
 mls786,"HIGH HD 3"
 ptvpk,"PTV Sports"
 skysare,"Sky Sports Arena"
-skysfor1,"Sky Sports F1"
 skysfor1,"Sky Sports F1 BackUp"
+skysfor1,"Sky Sports F1"
 skysgol,"Sky Sports  Golf"
 skyspnews,"Sky Sports News"
 star1in,"Star Sports"

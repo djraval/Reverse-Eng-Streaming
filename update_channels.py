@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, warnings, re
+import requests, warnings, re, os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
@@ -23,6 +23,25 @@ def get_links(url):
                 if any(pattern in a['href'] for pattern in ['crichdplayer', 'channel', 'live', 'stream'])]
     except:
         return []
+
+def save_js_snippet(fid, script_text, page_url):
+    """Save JavaScript snippet to logs directory for debugging"""
+    try:
+        # Create logs directory if it doesn't exist
+        os.makedirs('logs', exist_ok=True)
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"logs/js_snippet_{fid}_{timestamp}.js"
+
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(f"// Source URL: {page_url}\n")
+            f.write(f"// Captured: {datetime.now().isoformat()}\n")
+            f.write("// " + "=" * 50 + "\n\n")
+            f.write(script_text)
+
+    except Exception as e:
+        # Don't fail the main process if logging fails
+        pass
 
 def get_channel_data(url):
     try:
@@ -70,6 +89,9 @@ def test_stream(fid):
         scripts = BeautifulSoup(response.text, 'html.parser').find_all('script')
         for script in scripts:
             if script.text and all(k in script.text for k in ["P2PEngineHls", "Clappr.Player", ".join(\"\")"]):
+                # Save the full JS snippet for debugging
+                save_js_snippet(fid, script.text, url)
+
                 match = re.search(r'\[(.*?)\]\s*\.\s*join\s*\(\s*""\s*\)', script.text)
                 if match:
                     chars = [c.strip().strip('"\'').replace('\\/', '/') for c in match.group(1).split(',') if c.strip()]
