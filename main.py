@@ -1,25 +1,26 @@
-import json
 import re
 import sys
 from bs4 import BeautifulSoup
 import requests
 from typing import Optional
 
-def load_config():
+def load_channels():
     try:
-        with open('channels.json') as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Error loading config: {e}")
-        return None
+        channels = {}
+        with open('channels.txt', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and ',' in line:
+                    # Simple CSV parsing: channel_id,"Channel Name"
+                    channel_id, name = line.split(',', 1)
+                    channels[channel_id] = name.strip('"')
+        return channels
+    except FileNotFoundError:
+        print("Error: channels.txt not found")
+        return {}
 
-def build_url(config, channel_id):
-    url_config = config['urls']
-    return url_config['format'].format(
-        base=url_config['base'],
-        player=url_config['player'],
-        channel_id=channel_id
-    )
+def build_url(channel_id):
+    return f"https://apex2nova.com/premium.php?player=desktop&live={channel_id}"
 
 def parse_stream_info_no_llm(html_content: str) -> Optional[str]:
     soup = BeautifulSoup(html_content, 'html.parser')
@@ -78,19 +79,17 @@ def parse_stream_info_no_llm(html_content: str) -> Optional[str]:
 
 def get_stream_url(channel_id):
     """Get stream URL for a specific channel"""
-    config = load_config()
-    
-    if config is None or 'channels' not in config or 'urls' not in config:
-        print("CRITICAL: Failed to load configuration or 'channels'/'urls' key missing in channels.json.")
-        return None
-    
-    possible_channel_names = list(config['channels'].keys())
-    
-    if channel_id not in possible_channel_names:
-        print(f"Invalid channel: {channel_id}. Available channels: {', '.join(possible_channel_names)}")
+    channels = load_channels()
+
+    if not channels:
+        print("CRITICAL: Failed to load channels from channels.txt")
         return None
 
-    url = build_url(config, channel_id)
+    if channel_id not in channels:
+        print(f"Invalid channel: {channel_id}. Available channels: {', '.join(channels.keys())}")
+        return None
+
+    url = build_url(channel_id)
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
@@ -133,10 +132,8 @@ def get_stream_url(channel_id):
 
 def list_channels():
     """List all available channels"""
-    config = load_config()
-    if config and 'channels' in config:
-        return list(config['channels'].keys())
-    return []
+    channels = load_channels()
+    return list(channels.keys())
 
 def main():
     """Main function to handle command line arguments"""
