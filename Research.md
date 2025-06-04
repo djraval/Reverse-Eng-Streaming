@@ -276,4 +276,20 @@ Servers changed from pol[5/6/7].dunyapurkaraja.com:999 to off1.gogohaalmal.com:1
 
 
 ------------
-Probably I still need to keep cloudflare in the mix, since the request to some php pages on the main site work when i have cloudflare vpn on. (Observation when using it on my phone)
+Servers changed again to m[1/2/3/4/7].merichunidya.com:999
+
+Interseting find, did a search on censys for the domain merichunidya.com and found 2 search results.
+one of them was pointing to 38.240.41.205:8888 with the title `IP Video Transcoding Live! Free Trial` 
+
+Suggesting that it might be some sort of restreaming software. Webpage was open and had a link to online manual pointing to https://www.ipvideotrans.com/live-video-streaming/#setup
+
+Since this is a restreaming software but with not much entries. Probably they were trying something and didn't bother go further.
+
+and since the php script they are using is some sort of centre piece since that script is what's issing the signed m3u8 url. and the restreaming tool itself had some similr m3u8 signed urls(if they were using itt themselves they won't use signed urls with defined expiry in the tool itlsef) 
+
+apex2nova.com domain isn't very old so there's a chance that it will be replaced albiet less often but the overall pattern and thescript call should remain the same.
+
+Nice detour to search shodan, censys and securitytrails
+------------------
+
+For now I'll move my focus now to being able to connect to the peer based cdn and get a peer stream. need to learn how it works
