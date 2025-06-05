@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, warnings, re, os
+import requests, warnings, re, os, argparse
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
@@ -8,39 +8,36 @@ from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
-# Check if proxy is available and get public IP
+parser = argparse.ArgumentParser(description='Extract streaming links')
+parser.add_argument('--proxy', type=str, help='Use proxy (e.g., 127.0.0.1:8080, socks5://127.0.0.1:1080). Defaults to http:// if no protocol specified.')
+args = parser.parse_args()
+
 proxies = None
 public_ip = "unknown"
 
-# Try proxy first
+if args.proxy:
+    proxy_url = args.proxy
+    if not proxy_url.startswith(('http://', 'https://', 'socks5://', 'socks5h://')):
+        proxy_url = f'http://{proxy_url}'
+
+    proxies = {'http': proxy_url, 'https': proxy_url}
+
+# Get public IP
 try:
-    proxy_config = {'http': 'socks5h://127.0.0.1:1080', 'https': 'socks5h://127.0.0.1:1080'}
-    response = requests.get('https://www.cloudflare.com/cdn-cgi/trace', proxies=proxy_config, timeout=5)
+    response = requests.get('https://www.cloudflare.com/cdn-cgi/trace', proxies=proxies, timeout=5)
     if response.status_code == 200:
         for line in response.text.strip().split('\n'):
             if line.startswith('ip='):
                 public_ip = line.split('=')[1]
-                proxies = proxy_config
-                print(f"Using proxy - IP: {public_ip}")
                 break
-    else:
-        print(f"Proxy returned status {response.status_code}")
-except Exception as e:
-    print(f"Proxy failed: {e}")
 
-# If proxy failed, try direct connection
-if proxies is None:
-    try:
-        response = requests.get('https://www.cloudflare.com/cdn-cgi/trace', timeout=5)
-        if response.status_code == 200:
-            for line in response.text.strip().split('\n'):
-                if line.startswith('ip='):
-                    public_ip = line.split('=')[1]
-                    print(f"Using direct connection - IP: {public_ip}")
-                    break
-    except Exception as e:
-        print(f"Direct connection failed: {e}")
-        public_ip = "unknown"
+    if args.proxy:
+        print(f"Using proxy ({proxy_url}) - IP: {public_ip}")
+    else:
+        print(f"Using direct connection - IP: {public_ip}")
+except Exception as e:
+    print(f"Connection failed: {e}")
+    public_ip = "unknown"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
