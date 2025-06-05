@@ -15,21 +15,29 @@ public_ip = "unknown"
 # Try proxy first
 try:
     proxy_config = {'http': 'socks5h://127.0.0.1:1080', 'https': 'socks5h://127.0.0.1:1080'}
-    response = requests.get('http://httpbin.org/ip', proxies=proxy_config, timeout=5)
+    response = requests.get('https://www.cloudflare.com/cdn-cgi/trace', proxies=proxy_config, timeout=5)
     if response.status_code == 200:
-        proxies = proxy_config
-        public_ip = response.json()['origin']
-        print(f"Using proxy - IP: {public_ip}")
+        for line in response.text.strip().split('\n'):
+            if line.startswith('ip='):
+                public_ip = line.split('=')[1]
+                proxies = proxy_config
+                print(f"Using proxy - IP: {public_ip}")
+                break
+    else:
+        print(f"Proxy returned status {response.status_code}")
 except Exception as e:
     print(f"Proxy failed: {e}")
 
 # If proxy failed, try direct connection
 if proxies is None:
     try:
-        response = requests.get('http://httpbin.org/ip', timeout=5)
+        response = requests.get('https://www.cloudflare.com/cdn-cgi/trace', timeout=5)
         if response.status_code == 200:
-            public_ip = response.json()['origin']
-            print(f"Using direct connection - IP: {public_ip}")
+            for line in response.text.strip().split('\n'):
+                if line.startswith('ip='):
+                    public_ip = line.split('=')[1]
+                    print(f"Using direct connection - IP: {public_ip}")
+                    break
     except Exception as e:
         print(f"Direct connection failed: {e}")
         public_ip = "unknown"
@@ -141,16 +149,23 @@ with ThreadPoolExecutor(5) as executor:
 channels = [r for r in results if r]
 print(f"Found {len(channels)} channels, testing streams...")
 
-# Test streams and generate output
-working_streams = []
-for i, (fid, name) in enumerate(channels):
-    print(f"[{i+1}/{len(channels)}] Testing {fid}...")
+def test_stream(channel_info):
+    fid, name = channel_info
     m3u8_url = get_m3u8_url(fid)
     if m3u8_url:
-        working_streams.append((fid, name, m3u8_url))
-        print(f"  ✓ WORKING")
+        print(f"  ✓ {fid} WORKING")
+        return (fid, name, m3u8_url)
     else:
-        print(f"  ✗ FAILED")
+        print(f"  ✗ {fid} FAILED")
+        return None
+
+# Test streams and generate output
+print("Testing streams in parallel...")
+working_streams = []
+with ThreadPoolExecutor(5) as executor:
+    results = list(executor.map(test_stream, channels))
+
+working_streams = [r for r in results if r]
 
 # Save results
 working_streams.sort(key=lambda x: x[0])
