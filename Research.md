@@ -293,3 +293,11 @@ Nice detour to search shodan, censys and securitytrails
 ------------------
 
 For now I'll move my focus now to being able to connect to the peer based cdn and get a peer stream. need to learn how it works
+
+------------------
+
+Dynamic server availability - streaming servers have variable uptime throughout the day. Channel availability fluctuates, with some channels coming online/offline at different times. This explains why identical runs at different times yield varying stream counts.
+
+Cross-node signature compatibility - MD5 signatures work across multiple load-balanced nodes. Same signature validates on different server instances, indicating centralized authentication with distributed content delivery.
+
+Channel-specific signatures - MD5 hash generation includes channel identifier in the signing process. Signatures are bound to specific channels and cannot be reused across different streams, preventing cross-channel access.
