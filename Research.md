@@ -301,3 +301,14 @@ Dynamic server availability - streaming servers have variable uptime throughout 
 Cross-node signature compatibility - MD5 signatures work across multiple load-balanced nodes. Same signature validates on different server instances, indicating centralized authentication with distributed content delivery.
 
 Channel-specific signatures - MD5 hash generation includes channel identifier in the signing process. Signatures are bound to specific channels and cannot be reused across different streams, preventing cross-channel access.
+
+------------------
+Next intersting thing to chase, not interested in dealing with the CDN but rather just effeciently fetch the stream segment manually.
+Main motivator is the the m3u8 list works, which keeps giving us a list of avaiable segments. I could effecienly keep fetching the next segments for a given channel id.
+
+I'll probably need to use something else other than python maybe good detour into either golang, rust or Nodejs?
+Since this would be acting as a server and managing multiple clients while dealing with the upstream servers.
+
+A self contained minimal software tool running inside a docker container would be ideal. where it would maintain a list of the channels and urls just like our script.
+An upstream proxy to connect and download the segments and a server for clients to connect to and get the stream. I'll need to have it in memory though.
+So I can basically get an a faster stream (are there any other options other than m3u8 for better streaming?)
