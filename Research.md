@@ -312,3 +312,11 @@ Since this would be acting as a server and managing multiple clients while deali
 A self contained minimal software tool running inside a docker container would be ideal. where it would maintain a list of the channels and urls just like our script.
 An upstream proxy to connect and download the segments and a server for clients to connect to and get the stream. I'll need to have it in memory though.
 So I can basically get an a faster stream (are there any other options other than m3u8 for better streaming?)
+
+-----------------
+channel hosts are interchangable, older host isn't working but we can keep track of historical generation of the channel urls to create a pool of valid hosts.
+Some channel ids only work with some hosts.
+
+Possibility of speciific channel ids being allowed from speicifc client ips/region is also a possibility.
+
+it also imples that the signature is only tied to the client ip and the channel id

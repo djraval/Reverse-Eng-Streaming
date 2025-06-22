@@ -46,6 +46,7 @@ headers = {
 
 parser = argparse.ArgumentParser(description='Extract streaming links')
 parser.add_argument('--proxy', type=str, help='Use proxy (e.g., 127.0.0.1:8080, socks5://127.0.0.1:1080). Defaults to http:// if no protocol specified.')
+parser.add_argument('--save-js', action='store_true', help='Save JS snippets to logs directory for debugging')
 args = parser.parse_args()
 
 proxies = None
@@ -120,7 +121,8 @@ def get_m3u8_url(fid):
             if not all(keyword in script_content for keyword in required_keywords):
                 continue
 
-            save_js_snippet(fid, script_content, api_url) # Original side-effect
+            if args.save_js:
+                save_js_snippet(fid, script_content, api_url)
 
             match = re.search(r'\[(.*?)\]\s*\.\s*join\s*\(\s*""\s*\)', script_content)
             if not match:
